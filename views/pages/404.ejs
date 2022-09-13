@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="/css/main.css" />
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<div class="page-found">
+  <h1><%=__('PAGE.NOTFOUND.STATUS')%></h1>
+  <img src="/assets/images/error_bg.svg" alt="" />
+  <h2><%=__('PAGE.NOTFOUND')%></h2>
+  <button class="btn btn-primary" id="redirect">
+    <i class="fas fa-home"></i>
+    <%=__('PAGE.NOTFOUND.ACTIONS')%>
+  </button>
+</div>
+
+<script>
+  document.getElementById("redirect").onclick = function () {
+    location.href = "/";
+  };
+</script>
