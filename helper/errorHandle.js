@@ -1,12 +1,10 @@
-module.exports = async function (ctx, next) {
+module.exports = async function (req, res) {
 	try {
 		await next();
 	} catch (error) {
-		ctx.status = 500;
-		ctx.err = error;
-		ctx.body = {
+		res.status(500).json({
 			message: error.message,
 			error_code: 500
-		};
+		});
 	}
 };
