@@ -89,52 +89,37 @@ module.exports = {
 
 	async getDataBitmex(req, res) {
 		try {
-			const query = req.query;
+			const body = req.body;
 			let result = [];
 			const { data } = await axios.get('https://www.bitmex.com/api/udf/history', {
-				params: query
+				params: body
 			});
 			if (data.s === 'no_data') {
 				return res.status(200).json({
 					error_code: 100,
-					error_message: 'No data'
+					error_message: 'No data',
+					start_time: moment(body.from * 1000).format('YYYY-MM-DD HH:mm:ss'),
+					end_time: moment(body.to * 1000).format('YYYY-MM-DD HH:mm:ss')
 				});
 			}
 
-			result.push({
-				time: {
-					prev: moment(data.t[0] * 1000)
-						.utc(false)
-						.format('YYYY-MM-DD HH:mm:ss'),
-					curent: moment(data.t[1] * 1000)
-						.utc(false)
-						.format('YYYY-MM-DD HH:mm:ss')
-				},
-				close_price: {
-					prev: data.c[0],
-					curent: data.c[1]
-				},
-				open_price: {
-					prev: data.o[0],
-					curent: data.o[1]
-				},
-				high_price: {
-					prev: data.h[0],
-					curent: data.h[1]
-				},
-				low_price: {
-					prev: data.l[0],
-					curent: data.l[1]
-				},
-				volume: {
-					prev: data.v[0],
-					curent: data.v[1]
-				}
+			data['t'].map((item, index) => {
+				result.push({
+					open_time: moment(item * 1000).format('YYYY-MM-DD HH:mm:ss'),
+					open_price: data['o'][index],
+					high_price: data['h'][index],
+					low_price: data['l'][index],
+					close_price: data['c'][index],
+					volume: data['v'][index]
+				});
 			});
 
 			res.json({
-				message: 'Data fetched successfully',
-				symbol: query.symbol,
+				message: `Data fetched successfully`,
+				startDate: moment(body.from * 1000).format('YYYY-MM-DD HH:mm:ss'),
+				endDate: moment(body.to * 1000).format('YYYY-MM-DD HH:mm:ss'),
+				count: result.length,
+				symbol: body.symbol,
 				data: result
 			});
 		} catch (error) {
