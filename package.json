@@ -6,9 +6,10 @@
 	"scripts": {
 		"scss-watch": "sass --watch scss/app.scss public/css/main.css",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "pm2 start app.js --watch",
+		"start": "pm2 start app.js --watch --name COIN ",
 		"format": "npx prettier --write .",
-		"postinstall": "husky install"
+		"postinstall": "husky install",
+		"log": "pm2 logs COIN"
 	},
 	"keywords": [],
 	"author": "",

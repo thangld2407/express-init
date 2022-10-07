@@ -129,5 +129,80 @@ module.exports = {
 				error_bitmex: error
 			});
 		}
+	},
+
+	async getDataFtx(req, res) {
+		const { symbol, resolution, from, to } = req.body;
+
+		try {
+			const response = await axios.get(
+				`https://ftx.com/api/markets/${symbol}/candles?resolution=${resolution}&start_time=${from}&end_time=${to}`
+			);
+			let result = [];
+			if (response.data.success) {
+				const data = response.data.result;
+				let end_time = from;
+				if (data && data.length > 0) {
+					data.map((item, index) => {
+						if (index === 0) {
+							end_time = end_time;
+						} else {
+							end_time = end_time += resolution;
+						}
+						result.push({
+							open_time: moment(end_time * 1000).format('YYYY-MM-DD HH:mm:ss'),
+							close_time: moment((end_time + resolution) * 1000).format(
+								'YYYY-MM-DD HH:mm:ss'
+							),
+							time_stampe_open: end_time * 1000,
+							time_stampe_close: end_time * 1000 + resolution * 1000,
+							resolution: resolution,
+							open_price: item.open,
+							high_price: item.high,
+							low_price: item.low,
+							close_price: item.close,
+							volume: item.volume
+						});
+					});
+				}
+				res.status(200).json({
+					total: result.length,
+					data: result
+				});
+			}
+		} catch (error) {
+			res.status(500).json({
+				error: error.message,
+				error_code: error.code
+			});
+		}
+	},
+
+	async getDataKucoin(req, res) {
+		const { symbol, resolution, from, to } = req.body;
+		const url = `https://www.kucoin.com/_api/order-book/candles?begin=${from}&end=${to}&lang=en_US&symbol=${symbol}&type=${resolution}`;
+		try {
+			const response = await axios.get(url);
+			let result = [];
+			response.data.data.map(item => {
+				result.push({
+					resolution: resolution,
+					open_price: item[2],
+					high_price: item[3],
+					low_price: item[4],
+					close_price: item[5],
+					volume: item[6]
+				});
+			});
+			res.status(200).json({
+				total: result.length,
+				data: response.data.data
+			});
+		} catch (error) {
+			res.status(500).json({
+				error: error.message,
+				error_code: error.code
+			});
+		}
 	}
 };
