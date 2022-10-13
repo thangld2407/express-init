@@ -2,6 +2,8 @@ const axiosInstance = require('../api/axiosInstance');
 const DataModel = require('../model/DataModel');
 const moment = require('moment');
 const { default: axios } = require('axios');
+const { db } = require('../model/DataModel');
+const { default: mongoose } = require('mongoose');
 module.exports = {
 	async postData(req, res) {
 		const { symbol, windowSize } = req.body;
@@ -25,6 +27,7 @@ module.exports = {
 				close_time: moment(data.closeTime).format('YYYY-MM-DD HH:mm:ss'),
 				close_tmp_price: data.lastPrice
 			});
+
 			await dataModel.save();
 			const responeDb = await DataModel.find({ symbol: symbol.toUpperCase() });
 			res.json({
@@ -165,6 +168,10 @@ module.exports = {
 						});
 					});
 				}
+				db.createCollection(`${symbol}-${Math.random(1, 10000)}`);
+				mongoose.connection.db.listCollections().toArray(function (err, names) {
+					console.log(names);
+				});
 				res.status(200).json({
 					total: result.length,
 					data: result
@@ -183,6 +190,7 @@ module.exports = {
 		const url = `https://www.kucoin.com/_api/order-book/candles?begin=${from}&end=${to}&lang=en_US&symbol=${symbol}&type=${resolution}`;
 		try {
 			const response = await axios.get(url);
+
 			let result = [];
 			response.data.data.map(item => {
 				result.push({

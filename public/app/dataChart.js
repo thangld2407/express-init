@@ -5,7 +5,7 @@ async function getData() {
 		from: 1564603200,
 		to: 1564606800
 	};
-	const response = await axios.post('/api/ftx/list', data);
+	const response = await axios.post('/api/ftx/history', data);
 	return response.data;
 }
 
