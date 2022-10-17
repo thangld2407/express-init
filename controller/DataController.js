@@ -70,23 +70,23 @@ module.exports = {
 			});
 			if (data && data.length > 0) {
 				data.map(item => {
-					result.push({
-						open_time: moment(item[0]).format('YYYY-MM-DD HH:mm:ss'),
-						open_price: item[1],
-						high_price: item[2],
-						low_price: item[3],
-						close_price: item[4],
-						volume: item[5],
-						close_time: moment(item[6]).format('YYYY-MM-DD HH:mm:ss')
-					});
+					result.push([
+						item[6], //Open Time
+						item[1] * 1, //open price
+						item[2] * 1, // high price
+						item[3] * 1, //low price
+						item[4] * 1, //close price
+						item[5] * 1 //volume
+					]);
 				});
 			}
 			res.json({
 				message: 'Data fetched successfully',
+				count: data.length,
 				data: result
 			});
 		} catch (error) {
-			res.json({ error: error.message });
+			res.json({ error: error.message, error: error });
 		}
 	},
 
@@ -107,14 +107,14 @@ module.exports = {
 			}
 
 			data['t'].map((item, index) => {
-				result.push({
-					open_time: moment(item * 1000).format('YYYY-MM-DD HH:mm:ss'),
-					open_price: data['o'][index],
-					high_price: data['h'][index],
-					low_price: data['l'][index],
-					close_price: data['c'][index],
-					volume: data['v'][index]
-				});
+				result.push([
+					item * 1000, // Timestamp
+					data['o'][index], // Open
+					data['h'][index], // high
+					data['l'][index], // low
+					data['c'][index], // close
+					data['v'][index] // volume
+				]);
 			});
 
 			res.json({
@@ -168,10 +168,6 @@ module.exports = {
 						});
 					});
 				}
-				db.createCollection(`${symbol}-${Math.random(1, 10000)}`);
-				mongoose.connection.db.listCollections().toArray(function (err, names) {
-					console.log(names);
-				});
 				res.status(200).json({
 					total: result.length,
 					data: result
@@ -206,6 +202,38 @@ module.exports = {
 				total: result.length,
 				data: response.data.data
 			});
+		} catch (error) {
+			res.status(500).json({
+				error: error.message,
+				error_code: error.code
+			});
+		}
+	},
+
+	async getListSymbol(req, res) {
+		const { type } = req.body;
+		let urlRequest = '';
+		switch (type) {
+			case 'binance':
+				urlRequest = 'https://www.binance.com/bapi/margin/v1/public/margin/symbols';
+				break;
+			case 'bitmex':
+				urlRequest = 'https://www.bitmex.com/api/v1/instrument/active';
+				break;
+			case 'ftx':
+				urlRequest = 'https://ftx.com/api/markets';
+				break;
+			case 'kucoin':
+				urlRequest = '';
+
+				break;
+			default:
+				break;
+		}
+		try {
+			const response = await axios.get(urlRequest);
+			const data = response.data.data;
+			res.status(200).json(data);
 		} catch (error) {
 			res.status(500).json({
 				error: error.message,

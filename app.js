@@ -5,10 +5,12 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const path = require('path');
 const http = require('http');
-
+const cors = require('cors');
 const app = express();
 
 app.use(morgan('dev'));
+
+app.use(cors());
 
 app.set('view engine', 'ejs');
 
