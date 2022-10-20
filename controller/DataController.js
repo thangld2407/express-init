@@ -2,8 +2,7 @@ const axiosInstance = require('../api/axiosInstance');
 const DataModel = require('../model/DataModel');
 const moment = require('moment');
 const { default: axios } = require('axios');
-const { db } = require('../model/DataModel');
-const { default: mongoose } = require('mongoose');
+const SymbolDb = require('../model/SymbolModel');
 module.exports = {
 	async postData(req, res) {
 		const { symbol, windowSize } = req.body;
@@ -56,15 +55,28 @@ module.exports = {
 	},
 	async getDataStatistic(req, res) {
 		const { symbol, interval, startTime, endTime, limit } = req.body;
-		const params = {
+		let params = {
 			symbol: symbol.toUpperCase(),
 			interval,
 			startTime,
 			endTime,
 			limit
 		};
+
 		const result = [];
 		try {
+			const is_exist_data_symbol = await SymbolDb.findOne({
+				symbol: symbol.toUpperCase()
+			});
+
+			if (is_exist_data_symbol) {
+				params = {
+					...params,
+					startTime: is_exist_data_symbol.last_updated
+				};
+			}
+			console.log(params);
+
 			const { data } = await axiosInstance.get('/api/v3/klines', {
 				params
 			});
@@ -79,11 +91,33 @@ module.exports = {
 						item[5] * 1 //volume
 					]);
 				});
+				if (is_exist_data_symbol) {
+					await SymbolDb.updateOne(
+						{ symbol: symbol.toUpperCase() },
+						{
+							$set: {
+								last_updated: endTime,
+								ohlcv: [...is_exist_data_symbol.ohlcv, ...result]
+							}
+						}
+					);
+				} else {
+					const newData = new SymbolDb({
+						symbol: symbol.toUpperCase(),
+						ohlcv: result,
+						last_updated: endTime
+					});
+					await newData.save();
+				}
 			}
+
+			const dataDb = await SymbolDb.findOne({
+				symbol: symbol.toUpperCase()
+			});
 			res.json({
 				message: 'Data fetched successfully',
-				count: data.length,
-				data: result
+				data: dataDb,
+				count: dataDb.ohlcv.length
 			});
 		} catch (error) {
 			res.json({ error: error.message, error: error });
