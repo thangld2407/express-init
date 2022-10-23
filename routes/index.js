@@ -4,7 +4,7 @@ const routerClient = require('./client');
 
 const router = require('express').Router();
 
-router.use('/api', requireLogin, routerApi);
+router.use('/api', routerApi);
 
 router.use(routerClient);
 

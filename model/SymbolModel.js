@@ -11,7 +11,7 @@ const SymbolModel = new mongoose.Schema(
 			default: []
 		},
 		last_updated: {
-			type: Number
+			type: String
 		}
 	},
 	{
