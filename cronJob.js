@@ -4,7 +4,7 @@ const moment = require('moment');
 
 async function callCron() {
 	try {
-		const response = await axios.post('http://localhost:5000/api/coin/binance/db', {
+		const response = await axios.post('http://localhost:6969/api/coin/binance/db', {
 			symbol: 'BTCUSDT'
 		});
 
@@ -18,7 +18,7 @@ async function callCron() {
 				startTimeRequestApi = moment(response.data.data.last_updated)
 					.add(i, 'days')
 					.format('YYYY-MM-DD');
-				const res = await axios.post('http://localhost:5000/api/coin/binance', {
+				const res = await axios.post('http://localhost:6969/api/coin/binance', {
 					symbol: 'BTCUSDT',
 					startTime: startTimeRequestApi
 				});

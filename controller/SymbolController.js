@@ -54,7 +54,7 @@ module.exports = {
 						symbol: symbol.toUpperCase()
 					},
 					{
-						ohlcv: [...hasSymbolDb.ohlcv, result],
+						ohlcv: [...hasSymbolDb.ohlcv, ...result],
 						last_updated: moment(timing.end_time_11h59)
 							.add(1, 'minute')
 							.format('YYYY-MM-DD HH:mm:ss')
@@ -72,7 +72,8 @@ module.exports = {
 			}
 
 			res.json({
-				message: 'Data fetched successfully'
+				message: 'Data fetched successfully',
+				count_data: result.length
 			});
 		} catch (error) {
 			res.json({ error });
@@ -83,7 +84,8 @@ module.exports = {
 			const { symbol } = req.body;
 			const data = await SymbolModel.findOne({ symbol: symbol.toUpperCase() }).lean();
 			res.status(200).json({
-				data
+				data,
+				count: data.ohlcv.length
 			});
 		} catch (error) {
 			res.status(500).send({ error: 'Something went wrong!', error: error.message });
