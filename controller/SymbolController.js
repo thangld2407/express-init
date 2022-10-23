@@ -48,7 +48,6 @@ module.exports = {
 				});
 			}
 
-
 			if (hasSymbolDb && Object.keys(hasSymbolDb).length > 0) {
 				await SymbolModel.findOneAndUpdate(
 					{
@@ -60,7 +59,7 @@ module.exports = {
 							.add(1, 'minute')
 							.format('YYYY-MM-DD HH:mm:ss')
 					}
-				);
+				).lean();
 			} else {
 				const dataSave = new SymbolModel({
 					symbol: symbol.toUpperCase(),
@@ -82,7 +81,7 @@ module.exports = {
 	async getDataBinanceFromDb(req, res) {
 		try {
 			const { symbol } = req.body;
-			const data = await SymbolModel.findOne({ symbol: symbol.toUpperCase() });
+			const data = await SymbolModel.findOne({ symbol: symbol.toUpperCase() }).lean();
 			res.status(200).json({
 				data
 			});
