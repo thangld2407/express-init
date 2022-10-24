@@ -2,7 +2,6 @@ const axiosInstance = require('../api/axiosInstance');
 const { switchRequestTime } = require('../helper/switchRequest');
 const SymbolModel = require('../model/SymbolModel');
 const moment = require('moment');
-const { response } = require('express');
 module.exports = {
 	async getDataBinanceFromServer(req, res) {
 		const { symbol, startTime } = req.body;
@@ -48,28 +47,28 @@ module.exports = {
 				});
 			}
 
-			if (hasSymbolDb && Object.keys(hasSymbolDb).length > 0) {
-				await SymbolModel.findOneAndUpdate(
-					{
-						symbol: symbol.toUpperCase()
-					},
-					{
-						ohlcv: [...hasSymbolDb.ohlcv, ...result],
-						last_updated: moment(timing.end_time_11h59)
-							.add(1, 'minute')
-							.format('YYYY-MM-DD HH:mm:ss')
-					}
-				).lean();
-			} else {
-				const dataSave = new SymbolModel({
-					symbol: symbol.toUpperCase(),
-					ohlcv: result,
-					last_updated: moment(timing.end_time_11h59)
-						.add(1, 'minute')
-						.format('YYYY-MM-DD HH:mm:ss')
-				});
-				await dataSave.save();
-			}
+			// if (hasSymbolDb && Object.keys(hasSymbolDb).length > 0) {
+			// 	await SymbolModel.findOneAndUpdate(
+			// 		{
+			// 			symbol: symbol.toUpperCase()
+			// 		},
+			// 		{
+			// 			ohlcv: [...hasSymbolDb.ohlcv, ...result],
+			// 			last_updated: moment(timing.end_time_11h59)
+			// 				.add(1, 'minute')
+			// 				.format('YYYY-MM-DD HH:mm:ss')
+			// 		}
+			// 	).lean();
+			// } else {
+			const dataSave = new SymbolModel({
+				symbol: symbol.toUpperCase(),
+				ohlcv: result,
+				last_updated: moment(timing.end_time_11h59)
+					.add(1, 'minute')
+					.format('YYYY-MM-DD HH:mm:ss')
+			});
+			await dataSave.save();
+			// }
 
 			res.json({
 				message: 'Data fetched successfully',
@@ -82,10 +81,28 @@ module.exports = {
 	async getDataBinanceFromDb(req, res) {
 		try {
 			const { symbol } = req.body;
-			const data = await SymbolModel.findOne({ symbol: symbol.toUpperCase() }).lean();
+			const data = await SymbolModel.find({ symbol: symbol.toUpperCase() }).lean();
 			res.status(200).json({
-				data,
-				count: data.ohlcv.length
+				data: data[data.length - 1],
+				count: data[data.length - 1].ohlcv.length
+			});
+		} catch (error) {
+			res.status(500).send({ error: 'Something went wrong!', error: error.message });
+		}
+	},
+	async getDataBinanceFromDbByTime(req, res) {
+		try {
+			const { symbol } = req.params;
+			const data = await SymbolModel.find({ symbol: symbol.toUpperCase() }).lean();
+			let result = [];
+			data.map((item, index) => {
+				item.ohlcv.map((item2, index2) => {
+					result.push(item2);
+				});
+			});
+			res.status(200).json({
+				length: result.length,
+				data: result
 			});
 		} catch (error) {
 			res.status(500).send({ error: 'Something went wrong!', error: error.message });
