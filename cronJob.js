@@ -2,9 +2,11 @@ const { default: axios } = require('axios');
 const cron = require('node-cron');
 const moment = require('moment');
 
+let START_DATE = '2017-08-20';
+
 async function callCron() {
 	try {
-		const response = await axios.post('http://localhost:6969/api/coin/binance/db', {
+		const response = await axios.post('http://localhost:3000/api/coin/binance/db', {
 			symbol: 'BTCUSDT'
 		});
 
@@ -17,15 +19,20 @@ async function callCron() {
 				let startTimeRequestApi = moment(response.data.data.last_updated)
 					.add(i, 'days')
 					.format('YYYY-MM-DD');
-				const res = await axios.post('http://localhost:6969/api/coin/binance', {
+				const res = await axios.post('http://localhost:3000/api/coin/binance', {
 					symbol: 'BTCUSDT',
 					startTime: startTimeRequestApi
 				});
-				console.log(res.data);
-				console.log('====== BTCUSDT =====');
 				console.log('Đang lấy data ngày ', startTimeRequestApi);
 				console.log(`====== ${res.data.message} =====`);
 			}
+		} else {
+			const res = await axios.post('http://localhost:3000/api/coin/binance', {
+				symbol: 'BTCUSDT',
+				startTime: START_DATE
+			});
+			console.log('Đang lấy data ngày ', START_DATE);
+			console.log(`====== ${res.data.message} =====`);
 		}
 	} catch (error) {
 		console.log(error);

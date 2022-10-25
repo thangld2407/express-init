@@ -12,6 +12,9 @@ const SymbolModel = new mongoose.Schema(
 		},
 		last_updated: {
 			type: String
+		},
+		startTime: {
+			type: String
 		}
 	},
 	{

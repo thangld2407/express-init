@@ -82,10 +82,17 @@ module.exports = {
 		try {
 			const { symbol } = req.body;
 			const data = await SymbolModel.find({ symbol: symbol.toUpperCase() }).lean();
-			res.status(200).json({
-				data: data[data.length - 1],
-				count: data[data.length - 1].ohlcv.length
-			});
+			if (data && data.length > 0) {
+				res.status(200).json({
+					data: data[data.length - 1],
+					count: data[data.length - 1].ohlcv.length
+				});
+			} else {
+				res.status(200).json({
+					data: [],
+					count: 0
+				});
+			}
 		} catch (error) {
 			res.status(500).send({ error: 'Something went wrong!', error: error.message });
 		}
