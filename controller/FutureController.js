@@ -10,27 +10,34 @@ module.exports = {
 
 		let timing = switchRequestTime(startTime);
 		let params = {
-			symbol: symbol.toUpperCase(),
+			pair: symbol.toUpperCase(),
 			interval: '1m',
 			startTime: timing.start_time_timestamp,
 			endTime: timing.end_time_17h,
-			limit: 1000
+			limit: 1000,
+			contractType: 'PERPETUAL'
 		};
 
 		let result = [];
 		try {
 			let dataGlobal = [];
-			const response_first = await axios.get('https://dapi.binance.com/dapi/v1/klines', {
-				params
-			});
-			dataGlobal = [...dataGlobal, ...response_first.data];
-			const response_second = await axios.get('https://dapi.binance.com/dapi/v1/klines', {
-				params: {
-					startTime: timing.end_time_17h,
-					endTime: timing.end_time_11h59,
-					...params
+			const response_first = await axios.get(
+				'https://www.binance.com/fapi/v1/continuousKlines',
+				{
+					params
 				}
-			});
+			);
+			dataGlobal = [...dataGlobal, ...response_first.data];
+			const response_second = await axios.get(
+				'https://www.binance.com/fapi/v1/continuousKlines',
+				{
+					params: {
+						startTime: timing.end_time_17h,
+						endTime: timing.end_time_11h59,
+						...params
+					}
+				}
+			);
 
 			dataGlobal = [...dataGlobal, ...response_second.data];
 
