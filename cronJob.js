@@ -7,7 +7,7 @@ let START_DATE = '2017-08-20';
 async function callCron() {
 	try {
 		const response = await axios.post('http://localhost:3000/api/coin/binance/db', {
-			symbol: 'BTCUSDT'
+			symbol: 'BTCUSD_PERP'
 		});
 
 		const current_time = moment().format('x');
@@ -19,15 +19,15 @@ async function callCron() {
 				let startTimeRequestApi = moment(response.data.data.last_updated)
 					.add(i, 'days')
 					.format('YYYY-MM-DD');
-				const res = await axios.post('http://localhost:3000/api/coin/binance', {
-					symbol: 'BTCUSDT',
+				const res = await axios.post('http://localhost:3000/api/future/coin/init', {
+					symbol: 'BTCUSD_PERP',
 					startTime: startTimeRequestApi
 				});
 				console.log('Đang lấy data ngày ', startTimeRequestApi);
 				console.log(`====== ${res.data.message} =====`);
 			}
 		} else {
-			const res = await axios.post('http://localhost:3000/api/coin/binance', {
+			const res = await axios.post('http://localhost:3000/api/future/coin/init', {
 				symbol: 'BTCUSDT',
 				startTime: START_DATE
 			});

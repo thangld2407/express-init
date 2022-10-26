@@ -82,6 +82,7 @@ module.exports = {
 		try {
 			const { symbol } = req.body;
 			const data = await SymbolModel.find({ symbol: symbol.toUpperCase() }).lean();
+
 			if (data && data.length > 0) {
 				res.status(200).json({
 					data: data[data.length - 1],
