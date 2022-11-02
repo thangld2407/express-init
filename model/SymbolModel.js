@@ -15,6 +15,9 @@ const SymbolModel = new mongoose.Schema(
 		},
 		startTime: {
 			type: String
+		},
+		type_contract: {
+			type: String
 		}
 	},
 	{

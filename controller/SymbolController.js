@@ -47,28 +47,15 @@ module.exports = {
 				});
 			}
 
-			// if (hasSymbolDb && Object.keys(hasSymbolDb).length > 0) {
-			// 	await SymbolModel.findOneAndUpdate(
-			// 		{
-			// 			symbol: symbol.toUpperCase()
-			// 		},
-			// 		{
-			// 			ohlcv: [...hasSymbolDb.ohlcv, ...result],
-			// 			last_updated: moment(timing.end_time_11h59)
-			// 				.add(1, 'minute')
-			// 				.format('YYYY-MM-DD HH:mm:ss')
-			// 		}
-			// 	).lean();
-			// } else {
 			const dataSave = new SymbolModel({
 				symbol: symbol.toUpperCase(),
 				ohlcv: result,
 				last_updated: moment(timing.end_time_11h59)
 					.add(1, 'minute')
-					.format('YYYY-MM-DD HH:mm:ss')
+					.format('YYYY-MM-DD HH:mm:ss'),
+				type_contract: 'NORMAL'
 			});
 			await dataSave.save();
-			// }
 
 			res.json({
 				message: 'Data fetched successfully',
@@ -80,8 +67,11 @@ module.exports = {
 	},
 	async getDataBinanceFromDb(req, res) {
 		try {
-			const { symbol } = req.body;
-			const data = await SymbolModel.find({ symbol: symbol.toUpperCase() }).lean();
+			const { symbol, type_contract } = req.body;
+			const data = await SymbolModel.find({
+				symbol: symbol.toUpperCase(),
+				type_contract: type_contract
+			}).lean();
 
 			if (data && data.length > 0) {
 				res.status(200).json({
@@ -100,8 +90,11 @@ module.exports = {
 	},
 	async getDataBinanceFromDbByTime(req, res) {
 		try {
-			const { symbol } = req.params;
-			const data = await SymbolModel.find({ symbol: symbol.toUpperCase() }).lean();
+			const { symbol, type_contract } = req.params;
+			const data = await SymbolModel.find({
+				symbol: symbol.toUpperCase(),
+				type_contract: type_contract
+			}).lean();
 			let result = [];
 			data.map((item, index) => {
 				item.ohlcv.map((item2, index2) => {

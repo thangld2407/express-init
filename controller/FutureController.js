@@ -58,7 +58,8 @@ module.exports = {
 				ohlcv: result,
 				last_updated: moment(timing.end_time_11h59)
 					.add(1, 'minute')
-					.format('YYYY-MM-DD HH:mm:ss')
+					.format('YYYY-MM-DD HH:mm:ss'),
+				type_contract: 'PERPETUAL'
 			});
 			await dataSave.save();
 

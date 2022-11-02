@@ -6,7 +6,7 @@ let START_DATE = '2017-08-20';
 
 async function callCron() {
 	try {
-		const response = await axios.post('http://localhost:3000/api/coin/binance/db', {
+		const response = await axios.post(`${process.env.APP_URL}/api/coin/binance/db`, {
 			symbol: 'BTCUSD_PERP'
 		});
 
@@ -19,7 +19,7 @@ async function callCron() {
 				let startTimeRequestApi = moment(response.data.data.last_updated)
 					.add(i, 'days')
 					.format('YYYY-MM-DD');
-				const res = await axios.post('http://localhost:3000/api/future/coin/init', {
+				const res = await axios.post(`${process.env.APP_URL}/api/future/coin/init`, {
 					symbol: 'BTCUSD_PERP',
 					startTime: startTimeRequestApi
 				});
@@ -27,7 +27,7 @@ async function callCron() {
 				console.log(`====== ${res.data.message} =====`);
 			}
 		} else {
-			const res = await axios.post('http://localhost:3000/api/future/coin/init', {
+			const res = await axios.post(`${process.env.APP_URL}/api/future/coin/init`, {
 				symbol: 'BTCUSDT',
 				startTime: START_DATE
 			});
